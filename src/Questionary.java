@@ -5,10 +5,16 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.HashMap;
 public class Questionary extends JFrame{
 	private QuestionaryListener listener;
 	// Menu bar fields
@@ -27,7 +33,13 @@ public class Questionary extends JFrame{
 	private JButton btnPrevious;
 	private JButton btnDone;
 	// -----------------------------------
+	private Question activeQuestion;
+	private ArrayList<QuestionAnswered> questionsAnswered;
+	private Set<Question> alreadyShowed;
+	private int questionsCounter;
 	public Questionary(){
+		alreadyShowed = new TreeSet<Question>();
+		questionsAnswered = new ArrayList<QuestionAnswered>();
 		// Window settings
 		setSize(700,500);
 		Toolkit kit = Toolkit.getDefaultToolkit();
@@ -91,6 +103,34 @@ public class Questionary extends JFrame{
 		add(btnDone);
 		// --------------------------------
 	}
+	private void showQuestion(Question q){
+		System.out.println(q);
+		HashMap<String, String> answers = q.getAnswers();
+		Set<String> letters = answers.keySet();
+		String[] it = letters.toArray(new String[]{});
+		Arrays.sort(it);
+		for(String s : it)
+			System.out.println(s+") "+answers.get(s));
+		System.out.println();
+	}
+	private void nextQuestion(){
+		QuestionController controller = new QuestionController();
+		Question q = null;
+		boolean hasNoMore = false;
+		do{
+			hasNoMore = alreadyShowed.size() >= controller.getQuestionsCount();
+			if(!hasNoMore)
+				q = controller.randomQuestion();
+		}while(!hasNoMore && alreadyShowed.contains(q));
+		if(hasNoMore)
+			JOptionPane.showMessageDialog(this,"Não há mais questões!","Aviso",JOptionPane.WARNING_MESSAGE);
+		else{
+			showQuestion(q);
+			alreadyShowed.add(q);
+			questionsCounter++;
+		}
+	}
+	private void previousQuestion(){}
 	private class QuestionaryListener implements ActionListener{
 		public void actionPerformed(ActionEvent ae){
 			if(ae.getSource() == menuItemNewQuestion){
@@ -103,6 +143,7 @@ public class Questionary extends JFrame{
 			}else if(ae.getSource() == menuItemExit){
 				System.exit(0);
 			}else if(ae.getSource() == btnNext){
+				Questionary.this.nextQuestion();
 			}else if(ae.getSource() == btnPrevious){
 			}else if(ae.getSource() == btnDone){
 			}

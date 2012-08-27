@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.util.HashMap;
-public class Question implements Serializable{
+import java.lang.Comparable;
+public class Question implements Serializable, Comparable<Question>{
 	private Integer code;
 	private String question;
 	private HashMap<String,String> answers;
@@ -34,5 +35,14 @@ public class Question implements Serializable{
 	}
 	public HashMap<String, String> getAnswers(){
 		return this.answers;
+	}
+	public String toString(){
+		return this.code + "- " + this.question;
+	}
+	public int hashCode(){
+		return this.code;
+	}
+	public int compareTo(Question q){
+		return this.code.compareTo(q.getCode());
 	}
 }

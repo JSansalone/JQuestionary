@@ -7,8 +7,33 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Calendar;
+import java.util.ArrayList;
 public class QuestionController{
 	private File root;
+	private static ArrayList<Integer> randomList;
+	private static int randomCount;
+	static{
+		updateList();
+	}
+	private static void updateList(){
+		randomList = new ArrayList<Integer>();
+		QuestionController qc = new QuestionController();
+		Calendar c = Calendar.getInstance();
+		Random r = new Random(c.get(Calendar.HOUR)+c.get(Calendar.MINUTE)+c.get(Calendar.SECOND));
+		int maximum = qc.getQuestionsCount();
+		while(true){
+			int n = r.nextInt(maximum+1);
+			if(!randomList.contains(n) && n!=0){
+				randomList.add(n);
+			}
+			if(randomList.size()==maximum)break;
+		}
+	}
+	public void update(){
+		updateList();
+	}
 	public QuestionController(){
 		root = new File("questions");
 		if(!(root.exists() && root.isDirectory()))
@@ -72,6 +97,53 @@ public class QuestionController{
 			}
 		}
 		return questions;
+	}
+	public Question randomQuestion(){
+		boolean found = false;
+		Question q = null;
+		while(!found){
+			q = getQuestion(randomList.get(randomCount++));
+			if(q != null)
+				found = true;
+		}
+		if(randomCount == randomList.size())
+			randomCount = 0;
+		if(found)
+			return q;
+		else
+			return null;
+	}
+	public Question getQuestion(int code){
+		if(!(root.exists() && root.isDirectory()))
+			return null;
+		Question q = null;
+		try{
+			ObjectInputStream os = new ObjectInputStream(new FileInputStream(new File(root,"q"+code+".ser")));
+			q = (Question)os.readObject();
+			os.close();
+			return q;
+		}catch(Exception ex){
+			return null;
+		}
+	}
+	public int getQuestionsCount(){
+		if(!(root.exists() && root.isDirectory())){
+			System.out.println("root não existe");
+			return 0;
+		}
+		File[] files = root.listFiles();
+		Question q = null;
+		int count = 0;
+		for(File f : files){
+			try{
+				ObjectInputStream os = new ObjectInputStream(new FileInputStream(f));
+				q = (Question)os.readObject();
+				os.close();
+				count++;
+			}catch(Exception ex){
+			}
+		}
+		return count;
 	}
 	public final int getNextQuestionNumber(){
 		HashMap<Integer, Question> questions = getQuestions();

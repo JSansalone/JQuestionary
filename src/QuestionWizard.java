@@ -185,16 +185,18 @@ public class QuestionWizard extends JDialog implements Loadable{
 						question.setAnswer(letter,answer);
 					}
 					question.setCorrectAnswer((String)cmbCorrectAnswer.getSelectedItem());
-					if(mode ? controller.saveQuestion(question) : controller.updateQuestion(question))
+					if(mode ? controller.saveQuestion(question) : controller.updateQuestion(question)){
 						JOptionPane.showMessageDialog(QuestionWizard.this, mode ? "Questão salva!" : "Questão atualizada!", "Concluído", JOptionPane.INFORMATION_MESSAGE);
-					else
+						controller.update();
+					}else
 						JOptionPane.showMessageDialog(QuestionWizard.this, mode ? "Erro ao salvar a questão!" : "Erro ao atualizar a questão!", "Erro", JOptionPane.ERROR_MESSAGE);
 				}
 			}else if(ae.getSource() == btnRemoveQuestion){
 				QuestionController controller = new QuestionController();
-				if(controller.deleteQuestion(activeQuestion.getCode()))
+				if(controller.deleteQuestion(activeQuestion.getCode())){
 					JOptionPane.showMessageDialog(QuestionWizard.this, "Questão removida!", "Concluído", JOptionPane.INFORMATION_MESSAGE);
-				else
+					controller.update();
+				}else
 					JOptionPane.showMessageDialog(QuestionWizard.this, "Erro ao remover a questão!", "Erro", JOptionPane.ERROR_MESSAGE);
 				activeQuestion = null;
 			}else if(ae.getSource() == btnAdd){
