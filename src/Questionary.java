@@ -6,6 +6,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -37,6 +41,7 @@ public class Questionary extends JFrame{
 	private ArrayList<QuestionAnswered> questionsAnswered;
 	private Set<Question> alreadyShowed;
 	private int questionsCounter;
+	private boolean answered;
 	public Questionary(){
 		alreadyShowed = new TreeSet<Question>();
 		questionsAnswered = new ArrayList<QuestionAnswered>();
@@ -57,6 +62,7 @@ public class Questionary extends JFrame{
 		// Call method to create components
 		initComponents();
 		// --------------------------------
+		nextQuestion();
 	}
 	public void initComponents(){
 		listener = new QuestionaryListener();
@@ -86,7 +92,10 @@ public class Questionary extends JFrame{
 		textAreaQuestion.setLineWrap(true);
 		textAreaQuestion.setWrapStyleWord(true);
 		textAreaQuestion.setEditable(false);
+		answersPanel = new JPanel(null);
+		answersPanel.setBounds(10,90,675,300);
 		add(textAreaQuestion);
+		add(answersPanel);
 		// --------------------------------
 		// Creating navigation buttons
 		btnNext = new JButton("Próxima");
@@ -95,8 +104,10 @@ public class Questionary extends JFrame{
 		btnPrevious = new JButton("Anterior");
 		btnPrevious.setBounds(480,410,90,25);
 		btnPrevious.addActionListener(listener);
+		btnPrevious.setVisible(false);
 		btnDone = new JButton("Concluir");
-		btnDone.setBounds(370,410,90,25);
+	//	btnDone.setBounds(370,410,90,25);
+		btnDone.setBounds(480,410,90,25);
 		btnDone.addActionListener(listener);
 		add(btnNext);
 		add(btnPrevious);
@@ -104,30 +115,60 @@ public class Questionary extends JFrame{
 		// --------------------------------
 	}
 	private void showQuestion(Question q){
-		System.out.println(q);
+		textAreaQuestion.setText(q.getQuestion());
 		HashMap<String, String> answers = q.getAnswers();
 		Set<String> letters = answers.keySet();
 		String[] it = letters.toArray(new String[]{});
 		Arrays.sort(it);
-		for(String s : it)
-			System.out.println(s+") "+answers.get(s));
-		System.out.println();
+		ButtonGroup btg = new ButtonGroup();
+		int xBound = -30;
+		answersPanel.removeAll();
+		answersPanel.setVisible(false);
+		for(String s : it){
+			JRadioButton rdb = new JRadioButton("<html><p>"+s+") "+answers.get(s)+"</p></html>");
+			rdb.setBounds(10,(xBound+=40),655,40);
+			rdb.addActionListener(listener);
+			answersPanel.add(rdb);
+			btg.add(rdb);
+		}
+		answersPanel.setVisible(true);
+	}
+	private void saveQuestion(){
+		QuestionController controller = new QuestionController();
+		Question q = null;
+		boolean hasNoMore = false;
+		hasNoMore = alreadyShowed.size() > controller.getQuestionsCount();
+		if(!hasNoMore){
+			Component[] components = answersPanel.getComponents();
+			String letter = "";
+			for(Component c : components){
+				if(c instanceof JRadioButton && ((JRadioButton)c).isSelected()){
+					letter = ((JRadioButton)c).getText().substring(9,10);
+					break;
+				}
+			}
+			QuestionAnswered qa = new QuestionAnswered(activeQuestion,letter);
+			if(!questionsAnswered.contains(qa))questionsAnswered.add(qa);
+		}
 	}
 	private void nextQuestion(){
 		QuestionController controller = new QuestionController();
 		Question q = null;
 		boolean hasNoMore = false;
+		answered = false;
 		do{
 			hasNoMore = alreadyShowed.size() >= controller.getQuestionsCount();
-			if(!hasNoMore)
+			if(!hasNoMore){
 				q = controller.randomQuestion();
+			}
 		}while(!hasNoMore && alreadyShowed.contains(q));
-		if(hasNoMore)
+		if(hasNoMore){
 			JOptionPane.showMessageDialog(this,"Não há mais questões!","Aviso",JOptionPane.WARNING_MESSAGE);
-		else{
+		}else{
 			showQuestion(q);
 			alreadyShowed.add(q);
 			questionsCounter++;
+			activeQuestion = q;
 		}
 	}
 	private void previousQuestion(){}
@@ -143,9 +184,32 @@ public class Questionary extends JFrame{
 			}else if(ae.getSource() == menuItemExit){
 				System.exit(0);
 			}else if(ae.getSource() == btnNext){
-				Questionary.this.nextQuestion();
+				if(answered){
+					Questionary.this.saveQuestion();
+					Questionary.this.nextQuestion();
+				}else
+					JOptionPane.showMessageDialog(Questionary.this,"Responda a pergunta!","Aviso",JOptionPane.WARNING_MESSAGE);
 			}else if(ae.getSource() == btnPrevious){
 			}else if(ae.getSource() == btnDone){
+				saveQuestion();
+				int total = questionsAnswered.size();
+				int correct = 0;
+				int wrong = 0;
+				Question q = null;
+				String answered = "";
+				for(QuestionAnswered qa : questionsAnswered){
+					q = qa.getQuestion();
+					answered = qa.getAnswer();
+					if(q.getCorrectAnswer().equals(answered))
+						correct++;
+					else
+						wrong++;
+				}
+				QuestionaryResult qr = new QuestionaryResult();
+				qr.setInformation(total,correct,wrong);
+				qr.setVisible(true);
+			}else if(ae.getSource() instanceof JRadioButton){
+				answered = true;
 			}
 		}
 	}

@@ -158,6 +158,13 @@ public class QuestionWizard extends JDialog implements Loadable{
 		for(String s : str)
 			((DefaultListModel<String>)l.getModel()).addElement(s);
 	}
+	private void clear(){
+		areaQuestion.setText("");
+		cmbLetter.setModel(new DefaultComboBoxModel<String>(new String[]{"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"}));
+		txtAnswer.setText("");
+		((DefaultListModel<String>)answersList.getModel()).removeAllElements();
+		cmbCorrectAnswer.removeAllItems();
+	}
 	private class QuestionWizardListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent ae){
@@ -188,6 +195,7 @@ public class QuestionWizard extends JDialog implements Loadable{
 					if(mode ? controller.saveQuestion(question) : controller.updateQuestion(question)){
 						JOptionPane.showMessageDialog(QuestionWizard.this, mode ? "Questão salva!" : "Questão atualizada!", "Concluído", JOptionPane.INFORMATION_MESSAGE);
 						controller.update();
+						QuestionWizard.this.clear();
 					}else
 						JOptionPane.showMessageDialog(QuestionWizard.this, mode ? "Erro ao salvar a questão!" : "Erro ao atualizar a questão!", "Erro", JOptionPane.ERROR_MESSAGE);
 				}
@@ -196,6 +204,7 @@ public class QuestionWizard extends JDialog implements Loadable{
 				if(controller.deleteQuestion(activeQuestion.getCode())){
 					JOptionPane.showMessageDialog(QuestionWizard.this, "Questão removida!", "Concluído", JOptionPane.INFORMATION_MESSAGE);
 					controller.update();
+					QuestionWizard.this.clear();
 				}else
 					JOptionPane.showMessageDialog(QuestionWizard.this, "Erro ao remover a questão!", "Erro", JOptionPane.ERROR_MESSAGE);
 				activeQuestion = null;
