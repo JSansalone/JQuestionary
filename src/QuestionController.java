@@ -43,7 +43,7 @@ public class QuestionController{
 		try{
 			if(isNew)
 				q.setCode(getNextQuestionNumber());
-			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(root,"q"+q.getCode()+".ser")));
+			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(root,"q"+(q.getCode() < 10 ? "0"+q.getCode() : q.getCode())+".ser")));
 			os.writeObject(q);
 			os.close();
 			return true;
@@ -64,7 +64,7 @@ public class QuestionController{
 	public boolean deleteQuestion(int number){
 		if(!(root.exists() && root.isDirectory()))
 			return false;
-		File f = new File(root,"q"+number+".ser");
+		File f = new File(root,"q"+(number < 10 ? "0"+number : number)+".ser");
 		if(f.exists())
 			return f.delete();
 		return false;
@@ -73,7 +73,7 @@ public class QuestionController{
 		if(!(root.exists() && root.isDirectory()))
 			return null;
 		try{
-			ObjectInputStream os = new ObjectInputStream(new FileInputStream("q"+number+".ser"));
+			ObjectInputStream os = new ObjectInputStream(new FileInputStream("q"+(number < 10 ? "0"+number : number)+".ser"));
 			Question q = (Question)os.readObject();
 			os.close();
 			return q;
@@ -118,7 +118,7 @@ public class QuestionController{
 			return null;
 		Question q = null;
 		try{
-			ObjectInputStream os = new ObjectInputStream(new FileInputStream(new File(root,"q"+code+".ser")));
+			ObjectInputStream os = new ObjectInputStream(new FileInputStream(new File(root,"q"+(code < 10 ? "0"+code : code)+".ser")));
 			q = (Question)os.readObject();
 			os.close();
 			return q;

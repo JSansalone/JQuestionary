@@ -51,7 +51,7 @@ public class QuestionViewer extends JDialog{
 		Question q = null;
 		while(iterator.hasNext()){
 			q = questions.get(iterator.next());
-			((DefaultListModel<String>)questionsList.getModel()).addElement(q.getCode()+" - "+q.getQuestion());
+			((DefaultListModel<String>)questionsList.getModel()).addElement((q.getCode() < 10 ? "0"+ q.getCode() : q.getCode()) +" - "+q.getQuestion());
 		}
 	}
 	private class QuestionViewerListener implements MouseListener{
@@ -59,7 +59,8 @@ public class QuestionViewer extends JDialog{
 		public void mouseClicked(MouseEvent me){
 			if(me.getSource() == questionsList){
 				if(me.getClickCount() == 2){
-					int questionCode = Integer.parseInt(((DefaultListModel<String>)questionsList.getModel()).getElementAt(questionsList.getSelectedIndex()).substring(0,1));
+					String[] splitaux = ((DefaultListModel<String>)questionsList.getModel()).getElementAt(questionsList.getSelectedIndex()).split("\\s-\\s");
+					int questionCode = Integer.parseInt(splitaux[0]);
 					Question q = questions.get(questionCode);
 					QuestionViewer.this.loadable.loadQuestion(q);
 				}
