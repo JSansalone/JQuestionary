@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.Dimension;
@@ -19,6 +20,11 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.HashMap;
+import java.util.Calendar;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
 public class Questionary extends JFrame{
 	private QuestionaryListener listener;
 	// Menu bar fields
@@ -88,13 +94,14 @@ public class Questionary extends JFrame{
 		// --------------------------------
 		// Creating question text area
 		textAreaQuestion = new JTextArea();
-		textAreaQuestion.setBounds(10,10,675,70);
+		JScrollPane scrPane = new JScrollPane(textAreaQuestion);
+		scrPane.setBounds(10,10,675,70);
 		textAreaQuestion.setLineWrap(true);
 		textAreaQuestion.setWrapStyleWord(true);
 		textAreaQuestion.setEditable(false);
 		answersPanel = new JPanel(null);
 		answersPanel.setBounds(10,90,675,300);
-		add(textAreaQuestion);
+		add(scrPane);
 		add(answersPanel);
 		// --------------------------------
 		// Creating navigation buttons
@@ -191,25 +198,73 @@ public class Questionary extends JFrame{
 					JOptionPane.showMessageDialog(Questionary.this,"Responda a pergunta!","Aviso",JOptionPane.WARNING_MESSAGE);
 			}else if(ae.getSource() == btnPrevious){
 			}else if(ae.getSource() == btnDone){
-				saveQuestion();
-				int total = questionsAnswered.size();
-				int correct = 0;
-				int wrong = 0;
-				Question q = null;
-				String answered = "";
-				for(QuestionAnswered qa : questionsAnswered){
-					q = qa.getQuestion();
-					answered = qa.getAnswer();
-					if(q.getCorrectAnswer().equals(answered))
-						correct++;
-					else
-						wrong++;
-				}
-				QuestionaryResult qr = new QuestionaryResult();
-				qr.setInformation(total,correct,wrong);
-				qr.setVisible(true);
+				if(answered){
+					saveQuestion();
+					int total = questionsAnswered.size();
+					int correct = 0;
+					int wrong = 0;
+					Question q = null;
+					String answered = "";
+					for(QuestionAnswered qa : questionsAnswered){
+						q = qa.getQuestion();
+						answered = qa.getAnswer();
+						if(q.getCorrectAnswer().equals(answered))
+							correct++;
+						else
+							wrong++;
+					}
+					QuestionaryUtil.saveAnswers(questionsAnswered);
+					QuestionaryResult qr = new QuestionaryResult();
+					qr.setInformation(total,correct,wrong);
+					qr.setVisible(true);
+				}else
+					JOptionPane.showMessageDialog(Questionary.this,"Responda a pergunta!","Aviso",JOptionPane.WARNING_MESSAGE);
 			}else if(ae.getSource() instanceof JRadioButton){
 				answered = true;
+			}
+		}
+	}
+	private static class QuestionaryUtil{
+		public static void saveAnswers(ArrayList<QuestionAnswered> aqa){
+			File root = new File("answers");
+			if(!(root.exists() && root.mkdir()))
+				root.mkdir();
+			Calendar c = Calendar.getInstance();
+			String d = ""+(c.get(Calendar.DAY_OF_MONTH) < 10 ? "0"+c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH));
+			String m = ""+(c.get(Calendar.MONTH)+1 < 10 ? "0"+(c.get(Calendar.MONTH)+1) : c.get(Calendar.MONTH)+1);
+			String y = ""+(c.get(Calendar.YEAR));
+			int count = 0;
+			String fileName = "";
+			File file = null;
+			do{
+				fileName = "answers"+y+m+d+"_"+(++count)+".txt";
+				file = new File(root,fileName);
+			}while(file.exists());
+			try{
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				Question q = null;
+				String answer = null;
+				String correctAnswer = null;
+				boolean correct = false;
+				for(QuestionAnswered qa : aqa){
+					q = qa.getQuestion();
+					answer = qa.getAnswer();
+					correctAnswer = q.getCorrectAnswer();
+					correct = answer.equals(correctAnswer);
+					bw.write(correct ? "[correta]" : "[incorreta]");
+					bw.newLine();
+					bw.write(q.getCode()+"- "+q.getQuestion());
+					bw.newLine();
+					bw.write("Resposta:"+q.getAnswers().get(answer));
+					bw.newLine();
+					if(!correct) bw.write("Resposta correta:"+q.getAnswers().get(correctAnswer));
+					bw.newLine();
+					bw.newLine();
+					bw.newLine();
+				}
+				bw.close();
+			}catch(IOException e){
+				e.printStackTrace();
 			}
 		}
 	}

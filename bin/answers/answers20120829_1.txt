@@ -1,0 +1,4 @@
+11- Qual o método para retornar a quantidade de elementos de um ArrayList?
+
+10- Sobre literais numéricos, responda corretamente:
+
