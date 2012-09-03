@@ -11,6 +11,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -52,7 +53,7 @@ public class Questionary extends JFrame{
 		alreadyShowed = new TreeSet<Question>();
 		questionsAnswered = new ArrayList<QuestionAnswered>();
 		// Window settings
-		setSize(700,500);
+		setSize(700,700);
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
 		int width = screenSize.width;
@@ -95,26 +96,27 @@ public class Questionary extends JFrame{
 		// Creating question text area
 		textAreaQuestion = new JTextArea();
 		JScrollPane scrPane = new JScrollPane(textAreaQuestion);
-		scrPane.setBounds(10,10,675,70);
+		scrPane.setBounds(10,10,675,270);
 		textAreaQuestion.setLineWrap(true);
 		textAreaQuestion.setWrapStyleWord(true);
 		textAreaQuestion.setEditable(false);
+		textAreaQuestion.setFont(new Font("Courier New",Font.PLAIN,14));
 		answersPanel = new JPanel(null);
-		answersPanel.setBounds(10,90,675,300);
+		answersPanel.setBounds(10,290,675,300);
 		add(scrPane);
 		add(answersPanel);
 		// --------------------------------
 		// Creating navigation buttons
 		btnNext = new JButton("Próxima");
-		btnNext.setBounds(590,410,90,25);
+		btnNext.setBounds(590,610,90,25);
 		btnNext.addActionListener(listener);
 		btnPrevious = new JButton("Anterior");
-		btnPrevious.setBounds(480,410,90,25);
+		btnPrevious.setBounds(480,610,90,25);
 		btnPrevious.addActionListener(listener);
 		btnPrevious.setVisible(false);
 		btnDone = new JButton("Concluir");
-	//	btnDone.setBounds(370,410,90,25);
-		btnDone.setBounds(480,410,90,25);
+	//	btnDone.setBounds(370,610,90,25);
+		btnDone.setBounds(480,610,90,25);
 		btnDone.addActionListener(listener);
 		add(btnNext);
 		add(btnPrevious);
