@@ -53,7 +53,7 @@ public class Questionary extends JFrame{
 		alreadyShowed = new TreeSet<Question>();
 		questionsAnswered = new ArrayList<QuestionAnswered>();
 		// Window settings
-		setSize(700,700);
+		setSize(700,800);
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
 		int width = screenSize.width;
@@ -108,15 +108,15 @@ public class Questionary extends JFrame{
 		// --------------------------------
 		// Creating navigation buttons
 		btnNext = new JButton("Próxima");
-		btnNext.setBounds(590,610,90,25);
+		btnNext.setBounds(590,710,90,25);
 		btnNext.addActionListener(listener);
 		btnPrevious = new JButton("Anterior");
-		btnPrevious.setBounds(480,610,90,25);
+		btnPrevious.setBounds(480,710,90,25);
 		btnPrevious.addActionListener(listener);
 		btnPrevious.setVisible(false);
 		btnDone = new JButton("Concluir");
-	//	btnDone.setBounds(370,610,90,25);
-		btnDone.setBounds(480,610,90,25);
+	//	btnDone.setBounds(370,710,90,25);
+		btnDone.setBounds(480,710,90,25);
 		btnDone.addActionListener(listener);
 		add(btnNext);
 		add(btnPrevious);
