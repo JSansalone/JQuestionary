@@ -185,11 +185,21 @@ public class QuestionWizard extends JDialog implements Loadable{
 					String aux = "";
 					String answer = "";
 					String letter = "";
+					StringBuilder builder = null;
 					for(int i=0; i<total; i++){
 						aux = ((DefaultListModel<String>)answersList.getModel()).getElementAt(i);
 						answer = aux.substring(3,aux.length());
 						letter = aux.substring(0,1);
-						question.setAnswer(letter,answer);
+						builder = new StringBuilder("");
+						for(char c : answer.toCharArray()){
+							if(c == '<')
+								builder.append("&lt;");
+							else if(c == '>')
+								builder.append("&gt;");
+							else
+								builder.append(c);
+						}
+						question.setAnswer(letter,builder.toString());
 					}
 					question.setCorrectAnswer((String)cmbCorrectAnswer.getSelectedItem());
 					if(mode ? controller.saveQuestion(question) : controller.updateQuestion(question)){
